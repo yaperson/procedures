@@ -1,0 +1,146 @@
+---
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>{title} | Procédures PWA</title>
+    <meta name="description" content="Application de gestion des procédures" />
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
+    <link rel="apple-touch-icon" href={`${import.meta.env.BASE_URL}pwa-192x192.png`} />
+    <meta name="theme-color" content="#ffffff" />
+    <script src="/src/pwa.ts"></script>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="header-container">
+        <a href={import.meta.env.BASE_URL} class="logo"><img src={`${import.meta.env.BASE_URL}process.svg`} alt="process icon" srcset="" width="24px"> Procédures</a>
+        <nav>
+          <a href={`${import.meta.env.BASE_URL}admin/dashboard`} class="admin-link">Espace Admin</a>
+        </nav>
+      </div>
+    </header>
+    
+    <main class="app-main">
+      <slot />
+    </main>
+
+    <footer class="app-footer">
+      <p>&copy; {new Date().getFullYear()} - Application de procédures hors-ligne</p>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --primary: #3b82f6;
+    --primary-dark: #2563eb;
+    --bg-body: #f1f5f9;
+    --bg-card: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .app-header {
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .header-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-decoration: none;
+  }
+
+  .admin-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  
+  .admin-link:hover {
+    color: var(--primary);
+  }
+
+  .app-main {
+    flex: 1;
+    max-width: 80vw;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    width: 100%;
+  }
+
+  .app-footer {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Utilities */
+  .card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid var(--border);
+    margin-bottom: 1rem;
+  }
+
+  .btn {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .btn:hover {
+    background: var(--primary-dark);
+  }
+</style>

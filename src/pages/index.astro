@@ -1,17 +1,31 @@
 ---
-
+import Layout from '../layouts/Layout.astro';
+import CategoryList from '../components/CategoryList.vue';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Catégories">
+  <div class="hero">
+    <h1>Bibliothèque des Procédures</h1>
+    <p>Sélectionnez une catégorie pour consulter les procédures correspondantes.</p>
+  </div>
+  
+  <CategoryList client:load />
+</Layout>
+
+<style>
+  .hero {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .hero h1 {
+    font-size: 2.5rem;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+  }
+  
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+  }
+</style>

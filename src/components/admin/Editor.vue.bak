@@ -1,0 +1,260 @@
+<template>
+  <div v-if="!authChecked" class="loading">Vérification de l'accès...</div>
+  <div v-else class="editor-container">
+    <div class="header">
+      <a href="/admin/dashboard" class="back-link">← Retour</a>
+      <h1>{{ isNew ? 'Nouvelle procédure' : 'Éditer la procédure' }}</h1>
+    </div>
+
+    <form @submit.prevent="saveProcedure" class="card">
+      <div class="form-group">
+        <label>Titre de la procédure</label>
+        <input type="text" v-model="form.title" required class="input-title" placeholder="Ex: Onboarding employé" />
+      </div>
+
+      <div class="form-group">
+        <label>Catégorie</label>
+        <select v-model="form.category_id" required>
+          <option value="" disabled>Sélectionner une catégorie</option>
+          <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+          <option value="NEW">+ Ajouter une catégorie...</option>
+        </select>
+        
+        <div v-if="form.category_id === 'NEW'" class="new-category-input">
+          <input type="text" v-model="newCategoryName" placeholder="Nom de la nouvelle catégorie" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Contenu (HTML/Texte riche)</label>
+        <textarea v-model="form.content" rows="10" placeholder="<p>Instructions générales...</p>"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Étapes (une par ligne)</label>
+        <textarea v-model="stepsText" rows="6" placeholder="Étape 1...&#10;Étape 2..."></textarea>
+        <small class="help-text">Ces étapes seront affichées sous forme de cases à cocher à la fin du document.</small>
+      </div>
+
+      <div class="form-group">
+        <label>Diagramme (Syntaxe Mermaid.js)</label>
+        <textarea v-model="form.mermaid_chart" rows="6" placeholder="graph TD&#10;A[Début] --> B[Fin]"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn" :disabled="saving">
+          {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+        <span v-if="successMsg" class="success-msg">{{ successMsg }}</span>
+        <span v-if="errorMsg" class="error-msg">{{ errorMsg }}</span>
+      </div>
+    </form>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import { supabase } from '../../lib/supabase';
+
+const authChecked = ref(false);
+const isNew = ref(true);
+const saving = ref(false);
+const successMsg = ref('');
+const errorMsg = ref('');
+
+const categories = ref([]);
+const newCategoryName = ref('');
+const stepsText = ref('');
+const form = ref({
+  id: null,
+  title: '',
+  category_id: '',
+  content: '',
+  mermaid_chart: ''
+});
+
+onMounted(async () => {
+  if (supabase.supabaseUrl !== 'https://placeholder.supabase.co') {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
+      window.location.href = '/admin/login';
+      return;
+    }
+  }
+  
+  authChecked.value = true;
+  await loadCategories();
+  
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = urlParams.get('id');
+  if (id) {
+    isNew.value = false;
+    await loadProcedure(id);
+  }
+});
+
+const loadCategories = async () => {
+  if (supabase.supabaseUrl === 'https://placeholder.supabase.co') {
+    categories.value = [{ id: '1', name: 'Ressources Humaines' }];
+    return;
+  }
+  const { data } = await supabase.from('categories').select('*');
+  if (data) categories.value = data;
+};
+
+const loadProcedure = async (id) => {
+  if (supabase.supabaseUrl === 'https://placeholder.supabase.co') {
+    form.value = {
+      id: '101', title: 'Onboarding', category_id: '1',
+      content: '<p>Test</p>', mermaid_chart: 'graph TD\nA-->B'
+    };
+    stepsText.value = "Etape 1\nEtape 2";
+    return;
+  }
+
+  const { data } = await supabase.from('procedures').select('*').eq('id', id).single();
+  if (data) {
+    form.value = { ...data };
+    stepsText.value = data.steps ? data.steps.join('\n') : '';
+  }
+};
+
+const saveProcedure = async () => {
+  saving.value = true;
+  successMsg.value = '';
+  errorMsg.value = '';
+
+  try {
+    if (supabase.supabaseUrl !== 'https://placeholder.supabase.co' && form.value.category_id === 'NEW') {
+      const { data: newCat, error: catError } = await supabase
+        .from('categories')
+        .insert([{ name: newCategoryName.value }])
+        .select()
+        .single();
+      
+      if (catError) throw catError;
+      form.value.category_id = newCat.id;
+      categories.value.push(newCat);
+    }
+
+    const stepsArray = stepsText.value.split('\n').map(s => s.trim()).filter(s => s);
+    
+    const payload = {
+      title: form.value.title,
+      category_id: form.value.category_id === 'NEW' ? '1' : form.value.category_id, // Fallback for mock
+      content: form.value.content,
+      mermaid_chart: form.value.mermaid_chart,
+      steps: stepsArray,
+      updated_at: new Date().toISOString()
+    };
+
+    if (supabase.supabaseUrl === 'https://placeholder.supabase.co') {
+      setTimeout(() => {
+        successMsg.value = 'Enregistré avec succès (Mock)';
+        saving.value = false;
+      }, 500);
+      return;
+    }
+
+    if (isNew.value) {
+      payload.version = '1.0';
+      const { error } = await supabase.from('procedures').insert([payload]);
+      if (error) throw error;
+      window.location.href = '/admin/dashboard';
+    } else {
+      // In a real app, parse version and increment, e.g. from 1.0 to 1.1
+      const currentVersion = parseFloat(form.value.version || '1.0');
+      payload.version = (currentVersion + 0.1).toFixed(1);
+      
+      const { error } = await supabase.from('procedures').update(payload).eq('id', form.value.id);
+      if (error) throw error;
+      
+      successMsg.value = 'Modifications enregistrées ! Version passée à ' + payload.version;
+    }
+  } catch (e) {
+    console.error(e);
+    errorMsg.value = "Erreur lors de l'enregistrement.";
+  } finally {
+    saving.value = false;
+  }
+};
+</script>
+
+<style scoped>
+.header {
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  margin: 0;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.help-text {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.new-category-input {
+  margin-top: 0.5rem;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.input-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.form-actions {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.success-msg {
+  color: #10b981;
+  font-weight: 500;
+}
+
+.error-msg {
+  color: #ef4444;
+  font-weight: 500;
+}
+</style>
