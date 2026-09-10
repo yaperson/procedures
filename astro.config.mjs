@@ -30,7 +30,7 @@ export default defineConfig({
         ]
       },
       workbox: {
-        navigateFallback: '/procedures/index.html',
+        navigateFallback: '/procedures/',
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,jpeg,gif,webp,woff,woff2,ttf,eot,ico}'],
         runtimeCaching: [
           {
