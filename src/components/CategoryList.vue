@@ -3,7 +3,7 @@
     <div v-if="loading" class="loading">Chargement des catégories...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else class="grid">
-      <a v-for="cat in categories" :key="cat.id" :href="`${baseUrl}category?id=${cat.id}`" class="card category-card">
+      <a v-for="cat in categories" :key="cat.id" :href="`${baseUrl}category/?id=${cat.id}`" class="card category-card">
         <h2>{{ cat.name }}</h2>
         <p>{{ cat.description }}</p>
       </a>

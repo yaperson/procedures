@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="breadcrumb" v-if="procedure">
-      <a :href="`${baseUrl}category?id=${procedure.category_id}`">← Retour à la liste</a>
+      <a :href="`${baseUrl}category/?id=${procedure.category_id}`">← Retour à la liste</a>
     </div>
     
     <div v-if="loading" class="loading">Chargement de la procédure...</div>

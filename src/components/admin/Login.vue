@@ -38,7 +38,7 @@ const error = ref('');
 onMounted(async () => {
   const { data } = await supabase.auth.getSession();
   if (data.session) {
-    window.location.href = `${baseUrl}admin/dashboard`;
+    window.location.href = `${baseUrl}admin/dashboard/`;
   }
 });
 
@@ -49,7 +49,7 @@ const handleLogin = async () => {
   if (supabase.supabaseUrl === 'https://placeholder.supabase.co') {
     // Mock login for preview
     setTimeout(() => {
-      window.location.href = `${baseUrl}admin/dashboard`;
+      window.location.href = `${baseUrl}admin/dashboard/`;
     }, 1000);
     return;
   }
@@ -62,7 +62,7 @@ const handleLogin = async () => {
     
     if (authError) throw authError;
     
-    window.location.href = `${baseUrl}admin/dashboard`;
+    window.location.href = `${baseUrl}admin/dashboard/`;
   } catch (e) {
     error.value = "Identifiants invalides.";
   } finally {

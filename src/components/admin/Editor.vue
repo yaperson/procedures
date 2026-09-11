@@ -3,10 +3,10 @@
   <div v-else class="editor-container">
     <div class="header">
       <div>
-        <a :href="`${baseUrl}admin/dashboard`" class="back-link">← Retour</a>
+        <a :href="`${baseUrl}admin/dashboard/`" class="back-link">← Retour</a>
         <h1>{{ isNew ? 'Nouvelle procédure' : 'Éditer la procédure' }}</h1>
       </div>
-      <a :href="`${baseUrl}admin/guide`" target="_blank" class="btn btn-secondary guide-link">Guide d'utilisation ↗</a>
+      <a :href="`${baseUrl}admin/guide/`" target="_blank" class="btn btn-secondary guide-link">Guide d'utilisation ↗</a>
     </div>
 
     <form @submit.prevent="saveProcedure" class="card">
@@ -364,7 +364,7 @@ onMounted(async () => {
   if (supabase.supabaseUrl !== 'https://placeholder.supabase.co') {
     const { data } = await supabase.auth.getSession();
     if (!data.session) {
-      window.location.href = `${baseUrl}admin/login`;
+      window.location.href = `${baseUrl}admin/login/`;
       return;
     }
   }
@@ -587,7 +587,7 @@ const saveProcedure = async () => {
       payload.version = '1.0';
       const { error } = await supabase.from('procedures').insert([payload]);
       if (error) throw error;
-      window.location.href = `${baseUrl}admin/dashboard`;
+      window.location.href = `${baseUrl}admin/dashboard/`;
     } else {
       const currentVersion = parseFloat(form.value.version || '1.0');
       payload.version = (currentVersion + 0.1).toFixed(1);

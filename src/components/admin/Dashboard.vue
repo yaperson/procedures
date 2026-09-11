@@ -4,8 +4,8 @@
     <header class="dash-header">
       <h1>Tableau de bord</h1>
       <div class="actions">
-        <a :href="`${baseUrl}admin/editor`" class="btn">Créer une procédure</a>
-        <a :href="`${baseUrl}admin/guide`" class="btn btn-secondary">Guide d'utilisation</a>
+        <a :href="`${baseUrl}admin/editor/`" class="btn">Créer une procédure</a>
+        <a :href="`${baseUrl}admin/guide/`" class="btn btn-secondary">Guide d'utilisation</a>
         <button @click="logout" class="btn btn-secondary">Déconnexion</button>
       </div>
     </header>
@@ -68,7 +68,7 @@
             <td>v{{ proc.version }}</td>
             <td>{{ new Date(proc.updated_at).toLocaleDateString() }}</td>
             <td>
-              <a :href="`${baseUrl}admin/editor?id=${proc.id}`" class="action-link">Éditer</a>
+              <a :href="`${baseUrl}admin/editor/?id=${proc.id}`" class="action-link">Éditer</a>
             </td>
           </tr>
         </tbody>
@@ -94,7 +94,7 @@ onMounted(async () => {
   if (supabase.supabaseUrl !== 'https://placeholder.supabase.co') {
     const { data } = await supabase.auth.getSession();
     if (!data.session) {
-      window.location.href = `${baseUrl}admin/login`;
+      window.location.href = `${baseUrl}admin/login/`;
       return;
     }
   }
@@ -153,7 +153,7 @@ const markAsRead = async (id) => {
 
 const logout = async () => {
   await supabase.auth.signOut();
-  window.location.href = `${baseUrl}admin/login`;
+  window.location.href = `${baseUrl}admin/login/`;
 };
 </script>
 

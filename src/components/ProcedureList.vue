@@ -10,7 +10,7 @@
       <h1 class="page-title">{{ categoryName }}</h1>
       
       <div class="list">
-        <a v-for="proc in procedures" :key="proc.id" :href="`${baseUrl}procedure?id=${proc.id}`" class="card procedure-card">
+        <a v-for="proc in procedures" :key="proc.id" :href="`${baseUrl}procedure/?id=${proc.id}`" class="card procedure-card">
           <div class="proc-header">
             <h2>{{ proc.title }}</h2>
             <span class="version">v{{ proc.version || '1.0' }}</span>

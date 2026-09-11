@@ -1,7 +1,7 @@
 <template>
   <div class="guide-container">
     <div class="header">
-      <a :href="`${baseUrl}admin/dashboard`" class="back-link">← Retour au tableau de bord</a>
+      <a :href="`${baseUrl}admin/dashboard/`" class="back-link">← Retour au tableau de bord</a>
       <h1>Guide d'utilisation de l'Éditeur</h1>
       <p class="subtitle">Découvrez comment rédiger, structurer et visualiser vos procédures étape par étape.</p>
     </div>
@@ -151,7 +151,7 @@ onMounted(async () => {
   if (supabase.supabaseUrl !== 'https://placeholder.supabase.co') {
     const { data } = await supabase.auth.getSession();
     if (!data.session) {
-      window.location.href = `${baseUrl}admin/login`;
+      window.location.href = `${baseUrl}admin/login/`;
       return;
     }
   }
